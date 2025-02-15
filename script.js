@@ -2,9 +2,14 @@ const chatMessages = document.getElementById('chatMessages');
 const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
 
-const webhookURL = 'https://plantz.app.n8n.cloud/webhook/e1bda095-f5e5-4ebc-aeba-544917d39bec/chat';
-let chatSessionId = null; // Store the chat session ID
+const webhookURL = 'https://plantz.app.n8n.cloud/webhook/53c136fe-3e77-4709-a143-fe82746dd8b6/chat';
+let chatSessionId = generateSessionId(); // Generate a session ID
 let isFirstMessage = true; // Flag for the first message
+
+function generateSessionId() {
+    // Simple random session ID generator (you might want a more robust one)
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
 
 function addMessage(message, isUser) {
     const messageDiv = document.createElement('div');
@@ -22,7 +27,7 @@ async function sendMessageToWebhook(message) {
         // Prepare the request body as JSON
         const requestBody = {
             chatInput: message,
-            sessionId: chatSessionId,
+            sessionId: chatSessionId, // Include the session ID
             firstMessage: isFirstMessage, // Send the firstMessage flag
             metadata: {} //Example, empty
         };
@@ -41,14 +46,13 @@ async function sendMessageToWebhook(message) {
 
         const responseData = await response.json();
         const reply = responseData.output; // Get reply from output
-        chatSessionId = responseData.sessionId // Set session ID
+
 
         if (!reply){
           reply = JSON.stringify(responseData)
         }
 
-
-        // After the first message, set the flag to false
+        // Set first message to false
         isFirstMessage = false;
 
         return reply;
@@ -58,34 +62,6 @@ async function sendMessageToWebhook(message) {
         return "Sorry, there was an error processing your request.";
     }
 }
-
-// Load previous session on page load
-async function loadPreviousSession() {
-    try {
-        const response = await fetch(`${webhookURL}?action=loadPreviousSession`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json', // Even for GET, be explicit
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-       const responseData = await response.json();
-
-        if (responseData.sessionId) {
-            chatSessionId = responseData.sessionId;
-        }
-
-        //ADD MESSAGES FROM PREVIOUS SESSION HERE if structure is known.
-
-    } catch (error) {
-        console.error('Error loading previous session:', error);
-    }
-}
-
 
 sendButton.addEventListener('click', async () => {
     const messageText = messageInput.value.trim();
@@ -106,6 +82,5 @@ messageInput.addEventListener('keydown', async (event) => {
     }
 });
 
-// Load previous session and scroll to bottom on initial load
-loadPreviousSession();
+
 chatMessages.scrollTop = chatMessages.scrollHeight;
