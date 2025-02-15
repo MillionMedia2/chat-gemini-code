@@ -4,6 +4,7 @@ const sendButton = document.getElementById('sendButton');
 
 const webhookURL = 'https://plantz.app.n8n.cloud/webhook/53c136fe-3e77-4709-a143-fe82746dd8b6/chat';
 let chatSessionId = null; // Store the chat session ID
+let isFirstMessage = true; // Flag for the first message
 
 function addMessage(message, isUser) {
     const messageDiv = document.createElement('div');
@@ -20,34 +21,35 @@ async function sendMessageToWebhook(message) {
     try {
         // Prepare the request body as JSON
         const requestBody = {
-            chatInput: message, //Confirmed name of the value to pass
-            sessionId: chatSessionId  // Include the session ID if available
+            chatInput: message,
+            sessionId: chatSessionId,
+            firstMessage: isFirstMessage, // Send the firstMessage flag
+            metadata: {} //Example, empty
         };
 
-        const response = await fetch(`${webhookURL}?action=sendMessage`, { //ACTION QUERY PARAM
+        const response = await fetch(`${webhookURL}?action=sendMessage`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json' //Content-Type JSON
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(requestBody) //Stringify the JSON
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const responseData = await response.json(); // Parse JSON response
-        const reply = responseData.output; // Extract the 'output' property
+        const responseData = await response.json();
+        const reply = responseData.output; // Get reply from output
+        chatSessionId = responseData.sessionId // Set session ID
 
-        //If there isn't a output, return the whole data.
         if (!reply){
           reply = JSON.stringify(responseData)
         }
 
-        // Update the chat session ID if it's returned in the response
-        if (responseData.sessionId) {
-            chatSessionId = responseData.sessionId;
-        }
+
+        // After the first message, set the flag to false
+        isFirstMessage = false;
 
         return reply;
 
