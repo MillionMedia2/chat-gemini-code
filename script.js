@@ -47,13 +47,17 @@ async function sendMessageToWebhook(message) {
         const responseData = await response.json();
         const reply = responseData.output; // Get reply from output
 
-
         if (!reply){
           reply = JSON.stringify(responseData)
         }
 
-        // Set first message to false
+        // After the first message, set the flag to false
         isFirstMessage = false;
+
+        //Update Session ID from the response
+        if (responseData.sessionId){
+          chatSessionId = responseData.sessionId
+        }
 
         return reply;
 
