@@ -2,7 +2,7 @@ const chatMessages = document.getElementById('chatMessages');
 const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
 
-const webhookURL = 'https://plantz.app.n8n.cloud/webhook/53c136fe-3e77-4709-a143-fe82746dd8b6/chat';
+const webhookURL = 'https://plantz.app.n8n.cloud/webhook/71cf2e2c-efe5-4bc5-b7e4-e262b320445c/chat';
 let chatSessionId = generateSessionId(); // Generate a session ID
 let isFirstMessage = true; // Flag for the first message
 
