@@ -3,13 +3,7 @@ const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
 
 const webhookURL = 'https://plantz.app.n8n.cloud/webhook/71cf2e2c-efe5-4bc5-b7e4-e262b320445c/chat';
-let chatSessionId = generateSessionId(); // Generate a session ID
 let isFirstMessage = true; // Flag for the first message
-
-function generateSessionId() {
-    // Simple random session ID generator (you might want a more robust one)
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
 
 function addMessage(message, isUser) {
     const messageDiv = document.createElement('div');
@@ -27,7 +21,6 @@ async function sendMessageToWebhook(message) {
         // Prepare the request body as JSON
         const requestBody = {
             chatInput: message,
-            sessionId: chatSessionId, // Include the session ID
             firstMessage: isFirstMessage, // Send the firstMessage flag
             metadata: {} //Example, empty
         };
@@ -53,11 +46,6 @@ async function sendMessageToWebhook(message) {
 
         // After the first message, set the flag to false
         isFirstMessage = false;
-
-        //Update Session ID from the response
-        if (responseData.sessionId){
-          chatSessionId = responseData.sessionId
-        }
 
         return reply;
 
